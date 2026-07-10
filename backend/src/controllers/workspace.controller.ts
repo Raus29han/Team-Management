@@ -146,5 +146,10 @@ export const deleteWorkspaceByIdController = asyncHandler(
             workspaceId,
             userId
         );
+
+        return res.status(HTTPSTATUS.OK).json({
+            message : "Workspace deleted successfully",
+            currentWorkspace,
+        })
     }
 );
