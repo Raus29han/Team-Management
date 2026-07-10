@@ -5,8 +5,9 @@ import { workspaceIdSchema } from "../validation/workspace.validation";
 import { getMemeberRoleWorkspace } from "../services/member.service";
 import { roleGuard } from "../utils/roleGuard";
 import { Permissions } from "../enums/role.enum";
-import { createProjectService } from "../services/project.service";
+import { createProjectService, getAllProjectsInWorkspaceService } from "../services/project.service";
 import { HTTPSTATUS } from "../config/http.config";
+import { parse } from "path";
 
 
 export const createProjectController = asyncHandler(
@@ -31,5 +32,39 @@ export const createProjectController = asyncHandler(
             project,
         })
         
+    }
+)
+
+export const getAllProjectsInWorkspaceController = asyncHandler(
+    async (req : Request, res : Response) => {
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+
+        const userId = req.user?._id;
+
+        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY]);
+
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const pageNumber = parseInt(req.query.pageNumber as string) || 1;
+
+        const { projects, totalCount, totalPages, skip } = await getAllProjectsInWorkspaceService(
+            workspaceId,
+            pageSize,
+            pageNumber,
+        )
+
+        return res.status(HTTPSTATUS.OK).json({
+            message : "Project fetched successfully",
+            projects,
+            pagination : {
+                totalCount,
+                pageSize,
+                pageNumber,
+                totalPages,
+                skip,
+                limit : pageSize
+            }
+        })
+
     }
 )
