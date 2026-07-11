@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { createProjectController, getAllProjectsInWorkspaceController, getProjectAnalyticsController, getProjectByIdAndWorkspaceController } from "../controllers/project.controller";
+import { createProjectController, getAllProjectsInWorkspaceController, getProjectAnalyticsController, getProjectByIdAndWorkspaceController, updateProjectController } from "../controllers/project.controller";
 
 
 const projectRoutes = Router();
 
 projectRoutes.post("/workspace/:workspaceId/create", createProjectController);
+
+projectRoutes.put("/:id/workspace/:workspaceId/update", updateProjectController)
 
 projectRoutes.get("/workspace/:workspaceId/all", getAllProjectsInWorkspaceController);
 

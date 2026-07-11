@@ -28,7 +28,7 @@ export const createProjectService = async (
     return {
         project,
     }
-}
+};
 
 export const getAllProjectsInWorkspaceService = async (
     workspaceId : string,
@@ -59,7 +59,7 @@ export const getAllProjectsInWorkspaceService = async (
         skip
     }
 
-}
+};
 
 export const getProjectByIdAndWorkspaceService = async(
     workspaceId : string,
@@ -80,7 +80,7 @@ export const getProjectByIdAndWorkspaceService = async(
     return {
         project
     }
-}
+};
 
 export const getProjectAnalyticsService = async(
         workspaceId : string,
@@ -139,4 +139,38 @@ export const getProjectAnalyticsService = async(
     return {
         analytics,
     }
+};
+
+export const updateProjectService = async(
+    workspaceId : string,
+    projectId : string,
+    body : {
+        emoji? : string;
+        name : string;
+        description? : string;
+    }
+) => {
+    const { name, emoji, description } = body;
+
+    const project = await ProjectModel.findOne({
+        _id : projectId,
+        workspace : workspaceId,
+    });
+
+    if(!project) {
+        throw new NotFoundException(
+            "Project not found or does not belong to the specified workspace"
+        )
+    }
+
+    if(emoji) project.emoji = emoji;
+    if(name) project.name = name;
+    if(description) project.description = description;
+
+    await project.save();
+
+    return {
+        project
+    }
+
 }

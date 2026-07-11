@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
-import { createProjectSchema, projectIdSchema } from "../validation/project.validation";
+import { createProjectSchema, projectIdSchema, updateProjectSchema } from "../validation/project.validation";
 import { workspaceIdSchema } from "../validation/workspace.validation";
 import { getMemeberRoleWorkspace } from "../services/member.service";
 import { roleGuard } from "../utils/roleGuard";
 import { Permissions } from "../enums/role.enum";
-import { createProjectService, getAllProjectsInWorkspaceService, getProjectAnalyticsService, getProjectByIdAndWorkspaceService } from "../services/project.service";
+import { createProjectService, getAllProjectsInWorkspaceService, getProjectAnalyticsService, getProjectByIdAndWorkspaceService, updateProjectService } from "../services/project.service";
 import { HTTPSTATUS } from "../config/http.config";
 import { parse } from "path";
 
@@ -111,6 +111,33 @@ export const getProjectAnalyticsController = asyncHandler(
         return res.status(HTTPSTATUS.OK).json({
             message : "Project analytics retrieved successfully",
             analytics,
+        })
+
+    }
+);
+
+export const updateProjectController = asyncHandler(
+    async(req : Request, res : Response) => {
+
+        const userId = req.user?._id;
+        
+        const projectId = projectIdSchema.parse(req.params.id);
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+        
+        const body = updateProjectSchema.parse(req.body);
+
+        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        roleGuard(role, [Permissions.EDIT_PROJECT]);
+
+        const { project } = await updateProjectService(
+            workspaceId,
+            projectId,
+            body
+        )
+
+        return res.status(HTTPSTATUS.OK).json({
+            message : "Project update successfully",
+            project,
         })
 
     }
