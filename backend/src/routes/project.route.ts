@@ -8,6 +8,8 @@ projectRoutes.post("/workspace/:workspaceId/create", createProjectController);
 
 projectRoutes.get("/workspace/:workspaceId/all", getAllProjectsInWorkspaceController);
 
+projectRoutes.get("/:id/workspace/:workspaceId/analytics");
+
 projectRoutes.get("/:id/workspace/:workspaceId", getProjectByIdAndWorkspaceController);
 
 
