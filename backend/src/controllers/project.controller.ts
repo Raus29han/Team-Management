@@ -5,7 +5,7 @@ import { workspaceIdSchema } from "../validation/workspace.validation";
 import { getMemeberRoleWorkspace } from "../services/member.service";
 import { roleGuard } from "../utils/roleGuard";
 import { Permissions } from "../enums/role.enum";
-import { createProjectService, getAllProjectsInWorkspaceService, getProjectByIdAndWorkspaceService } from "../services/project.service";
+import { createProjectService, getAllProjectsInWorkspaceService, getProjectAnalyticsService, getProjectByIdAndWorkspaceService } from "../services/project.service";
 import { HTTPSTATUS } from "../config/http.config";
 import { parse } from "path";
 
@@ -67,7 +67,7 @@ export const getAllProjectsInWorkspaceController = asyncHandler(
         })
 
     }
-)
+);
 
 export const getProjectByIdAndWorkspaceController = asyncHandler(
     async(req : Request, res : Response) => {
@@ -90,4 +90,29 @@ export const getProjectByIdAndWorkspaceController = asyncHandler(
         });
         
     }
+);
+
+export const getProjectAnalyticsController = asyncHandler(
+    async(req : Request, res : Response) => {
+
+        const projectId = projectIdSchema.parse(req.params.id);
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+
+        const userId = req.user?._id;
+
+        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY]);
+
+        const { analytics } = await getProjectAnalyticsService(
+            workspaceId,
+            projectId
+        )
+
+        return res.status(HTTPSTATUS.OK).json({
+            message : "Project analytics retrieved successfully",
+            analytics,
+        })
+
+    }
 )
+
