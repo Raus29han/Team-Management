@@ -173,4 +173,29 @@ export const updateProjectService = async(
         project
     }
 
-}
+};
+
+export const deleteProjectService = async(
+    workspaceId : string,
+    projectId : string
+) => {
+    const project = await ProjectModel.findOne({
+        _id : projectId,
+        workspace : workspaceId,
+    });
+
+    if(!project) {
+        throw new NotFoundException(
+            "Project not found or does not belong to specified workspace"
+        );
+    }
+
+    await project.deleteOne();
+    
+    await TaskModel.deleteMany({
+        project : project._id,
+    })
+
+
+    return project;
+};
