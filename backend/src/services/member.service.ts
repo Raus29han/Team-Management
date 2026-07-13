@@ -6,7 +6,7 @@ import WorkspaceModel from "../models/workspace.model";
 import { BadRequestException, NotFoundException, UnauthorizedException } from "../utils/appError";
 
 
-export const getMemeberRoleWorkspace = async (userId: string, workspaceId: string) => {
+export const getMemberRoleWorkspace = async (userId: string, workspaceId: string) => {
     const workspace = await WorkspaceModel.findById(workspaceId);
 
     if(!workspace){

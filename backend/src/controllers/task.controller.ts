@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import { projectIdSchema } from "../validation/project.validation";
 import { workspaceIdSchema } from "../validation/workspace.validation";
-import { getMemeberRoleWorkspace } from "../services/member.service";
+import { getMemberRoleWorkspace } from "../services/member.service";
 import { roleGuard } from "../utils/roleGuard";
 import { Permissions } from "../enums/role.enum";
 import { createTaskSchema, taskIdSchema, updateTaskSchema } from "../validation/task.validation";
-import { createTaskService, getAllTaskService, updateTaskService } from "../services/task.service";
+import { createTaskService, getAllTaskService, getTaskByIdService, updateTaskService } from "../services/task.service";
 import { HTTPSTATUS } from "../config/http.config";
 
 export const createTaskController = asyncHandler(
@@ -18,7 +18,7 @@ export const createTaskController = asyncHandler(
         const projectId = projectIdSchema.parse(req.params.projectId);
         const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.CREATE_TASK]);
 
         const { task } = await createTaskService(
@@ -44,7 +44,7 @@ export const updateTaskController = asyncHandler(
         const projectId = projectIdSchema.parse(req.params.projectId);
         const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.EDIT_TASK]);
 
         const { updatedTask } = await updateTaskService(workspaceId, projectId, taskId, body);
@@ -83,7 +83,7 @@ export const getAllTaskController = asyncHandler(
             pageNumber : parseInt(req.query.pageNumber as string) || 1,
         };
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.VIEW_ONLY]);
 
         const result = await getAllTaskService(
@@ -99,3 +99,27 @@ export const getAllTaskController = asyncHandler(
          
     }
 );
+
+export const getTaskByIdController = asyncHandler(
+    async(req : Request, res : Response) => {
+        const userId = req.user?._id;
+
+        const taskId = taskIdSchema.parse(req.params.id);
+        const projectId = projectIdSchema.parse(req.params.projectId);
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY]);
+
+        const task = await getTaskByIdService(
+            workspaceId,
+            projectId,
+            taskId
+        )
+
+        return res.status(HTTPSTATUS.OK).json({
+            message : "Task fetched successfully",
+            task,
+        })
+    }
+)

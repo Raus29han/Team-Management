@@ -3,7 +3,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import { changeRoleSchema, createWorkspaceSchema, updateWorkspaceSchema, workspaceIdSchema } from "../validation/workspace.validation";
 import { HTTPSTATUS } from "../config/http.config";
 import { changeMemberRoleService, createWorkspaceService, deleteWorkspaceByIdService, getAllWorkspaceUserIsMemberService, getWorkspaceAnalyticsService, getWorkspaceByIdService, getWorkspaceMembersService, updateWorkspaceByIdService } from "../services/workspace.service";
-import { getMemeberRoleWorkspace } from "../services/member.service";
+import { getMemberRoleWorkspace } from "../services/member.service";
 import { roleGuard } from "../utils/roleGuard";
 import { Permissions } from "../enums/role.enum";
 
@@ -39,7 +39,7 @@ export const getWorkspaceByIdController = asyncHandler(
         const workspaceId = workspaceIdSchema.parse(req.params.id);
         const userId = req.user?._id;
 
-        await getMemeberRoleWorkspace(userId, workspaceId);
+        await getMemberRoleWorkspace(userId, workspaceId);
         
         const { workspace } = await getWorkspaceByIdService(workspaceId);
         
@@ -55,7 +55,7 @@ export const getWorkspaceMembersController = asyncHandler(
         const workspaceId = workspaceIdSchema.parse(req.params.id);
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
 
         roleGuard(role, [Permissions.VIEW_ONLY]);
 
@@ -74,7 +74,7 @@ export const getWorkspaceAnalyticsController = asyncHandler(
         const workspaceId = workspaceIdSchema.parse(req.params.id);
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
 
         roleGuard(role, [Permissions.VIEW_ONLY]);
  
@@ -95,7 +95,7 @@ export const changeWorkspaceMemberRoleController = asyncHandler(
 
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
 
         roleGuard(role, [Permissions.CHANGE_MEMBER_ROLE]);
 
@@ -117,7 +117,7 @@ export const updateWorkspaceByIdController = asyncHandler(
 
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.CHANGE_MEMBER_ROLE]);
 
         const { workspace } = await updateWorkspaceByIdService(
@@ -139,7 +139,7 @@ export const deleteWorkspaceByIdController = asyncHandler(
 
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.DELETE_WORKSPACE]);
 
         const { currentWorkspace } = await deleteWorkspaceByIdService(

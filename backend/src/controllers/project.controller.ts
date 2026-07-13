@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import { createProjectSchema, projectIdSchema, updateProjectSchema } from "../validation/project.validation";
 import { workspaceIdSchema } from "../validation/workspace.validation";
-import { getMemeberRoleWorkspace } from "../services/member.service";
+import { getMemberRoleWorkspace } from "../services/member.service";
 import { roleGuard } from "../utils/roleGuard";
 import { Permissions } from "../enums/role.enum";
 import { createProjectService, deleteProjectService, getAllProjectsInWorkspaceService, getProjectAnalyticsService, getProjectByIdAndWorkspaceService, updateProjectService } from "../services/project.service";
@@ -18,7 +18,7 @@ export const createProjectController = asyncHandler(
 
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.CREATE_PROJECT]);
 
         const { project } = await createProjectService(
@@ -41,7 +41,7 @@ export const getAllProjectsInWorkspaceController = asyncHandler(
 
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.VIEW_ONLY]);
 
         const pageSize = parseInt(req.query.pageSize as string) || 10;
@@ -76,7 +76,7 @@ export const getProjectByIdAndWorkspaceController = asyncHandler(
 
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.VIEW_ONLY]);
 
         const { project } = await getProjectByIdAndWorkspaceService(
@@ -100,7 +100,7 @@ export const getProjectAnalyticsController = asyncHandler(
 
         const userId = req.user?._id;
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.VIEW_ONLY]);
 
         const { analytics } = await getProjectAnalyticsService(
@@ -126,7 +126,7 @@ export const updateProjectController = asyncHandler(
         
         const body = updateProjectSchema.parse(req.body);
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.EDIT_PROJECT]);
 
         const { project } = await updateProjectService(
@@ -151,7 +151,7 @@ export const deleteProjectController = asyncHandler(
         const projectId = projectIdSchema.parse(req.params.id);
         const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
 
-        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        const { role } = await getMemberRoleWorkspace(userId, workspaceId);
         roleGuard(role, [Permissions.DELETE_PROJECT]);
 
         await deleteProjectService(
