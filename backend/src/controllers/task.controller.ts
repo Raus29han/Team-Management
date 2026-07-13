@@ -6,7 +6,7 @@ import { getMemeberRoleWorkspace } from "../services/member.service";
 import { roleGuard } from "../utils/roleGuard";
 import { Permissions } from "../enums/role.enum";
 import { createTaskSchema, taskIdSchema, updateTaskSchema } from "../validation/task.validation";
-import { createTaskService, updateTaskService } from "../services/task.service";
+import { createTaskService, getAllTaskService, updateTaskService } from "../services/task.service";
 import { HTTPSTATUS } from "../config/http.config";
 
 export const createTaskController = asyncHandler(
@@ -53,5 +53,49 @@ export const updateTaskController = asyncHandler(
             message : "Task updated successfully",
             task : updatedTask,
         })
+    }
+);
+
+export const getAllTaskController = asyncHandler(
+    async(req : Request, res : Response) => {
+        const userId = req.user?._id;
+
+        const workspaceId = workspaceIdSchema.parse(req.params.workspaceId);
+
+        const filters = {
+            projectId : req.query.projectId as string | undefined,
+            status : req.query.status 
+                ? (req.query.status as string)?.split(",") 
+                : undefined,
+            priority : req.query.status 
+                ? (req.query.priority as string)?.split(",") 
+                : undefined,
+            assignedTo : req.query.status 
+                ? (req.query.assignedTo as string)?.split(",") 
+                : undefined,
+            
+            keyword : req.query.keyword as string | undefined,
+            dueDate : req.query.dueDate as string | undefined,
+        };
+
+        const pagination = {
+            pageSize : parseInt(req.query.pageSize as string) || 10,
+            pageNumber : parseInt(req.query.pageNumber as string) || 1,
+        };
+
+        const { role } = await getMemeberRoleWorkspace(userId, workspaceId);
+        roleGuard(role, [Permissions.VIEW_ONLY]);
+
+        const result = await getAllTaskService(
+            workspaceId,
+            filters,
+            pagination
+        )
+
+        return res.status(HTTPSTATUS.OK).json({
+            message : "All tasks fetched successfully",
+            ...result
+        });
+         
     }
 );
